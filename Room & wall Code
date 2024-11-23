@@ -1,0 +1,63 @@
+let room01;
+let wall01;
+
+let room02;
+let wall02;
+
+function setup() {
+  createCanvas(500, 500);
+  room01 = new Room(120, 100, 150, 150);
+  wall01 = new Wall(room01);
+  
+  room02 = new Room(300, 200, 150, 150);
+  wall02 = new Wall(room02);
+}
+
+function draw() {
+  background(220);
+  room01.display();
+  wall01.display();
+  
+  room02.display();
+  wall02.display();
+}
+
+class Room {
+  constructor(x, y, w, h) {
+    this.x = x; // x position of the room
+    this.y = y; // y position of the room
+    this.w = w; // width of the room
+    this.h = h; // height of the room
+  }
+
+  display() {
+    // Draw the room
+    stroke('white'); // Wall color
+    strokeWeight(1); // Wall thickness
+    fill('white');
+    rect(this.x, this.y, this.w, this.h); // Outer rectangle (walls)
+  }
+}
+
+class Wall {
+  constructor(room) {
+    this.room = room; // The room object
+  }
+
+  display() {
+    const { x, y, w, h } = this.room; // Use w and h instead of width and height
+
+    stroke('black'); // Wall color
+    strokeWeight(2); // Set a positive stroke weight for visibility
+
+    // Draw the walls as lines
+    // Top wall
+    line(x, y, x + w, y);
+    // Right wall
+    line(x + w, y, x + w, y + h);
+    // Bottom wall
+    line(x + w, y + h, x, y + h);
+    // Left wall
+    line(x, y + h, x, y);
+  }
+}
