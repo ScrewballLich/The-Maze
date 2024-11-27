@@ -1,0 +1,123 @@
+let room01; let wall01;
+
+let room02; let wall02;
+
+let room03; let wall03;
+
+let room04; let wall04;
+
+let room05; let wall05;
+
+let room06; let wall06;
+
+let room07; let wall07;
+
+let room08; let wall08;
+
+let room09; let wall09;
+
+let room10; let wall10;
+
+var wallColor;
+
+function setup() {
+  createCanvas(800, 800);
+  room01 = new Room(90, 425, 110, 60);
+  wall01 = new Wall(room01);
+  
+  room02 = new Room(30,535,195,80);
+  wall02 = new Wall(room02);
+  
+  room03 = new Room(275,510,130,130);
+  wall03 = new Wall(room03);
+  
+  room04 = new Room(280,310,255,150);
+  wall04 = new Wall(room04);
+  
+  room05 = new Room(430,565,165,100);
+  wall05 = new Wall(room05);
+  
+  room06 = new Room(545,700,200,60);
+  wall06 = new Wall(room06);
+  
+  room07 = new Room(675,600,100,60);
+  wall07 = new Wall(room07);
+  
+  room08 = new Room(600,400,145,90);
+  wall08 = new Wall(room08);
+  
+  room09 = new Room(570,220,160,90);
+  wall09 = new Wall(room09);
+  
+  room10 = new Room(620,135,90,50);
+  wall10 = new Wall(room10);
+}
+
+function draw() {
+  background(220);
+  room01.display(); wall01.display();
+  
+  room02.display(); wall02.display();
+  
+  room03.display(); wall03.display();
+  
+  room04.display(); wall04.display();
+  
+  room05.display(); wall05.display();
+  
+  room06.display(); wall06.display();
+  
+  room07.display(); wall07.display();
+  
+  room08.display(); wall08.display();
+
+  room09.display(); wall09.display();
+  
+  room10.display(); wall10.display();
+}
+
+class Room {
+  constructor(x, y, w, h) {
+    this.x = x; // x position of the room
+    this.y = y; // y position of the room
+    this.w = w; // width of the room
+    this.h = h; // height of the room
+  }
+
+  display() {
+    // Draw the room
+    stroke('white'); // Wall color
+    strokeWeight(1); // Wall thickness
+    fill('white');
+    rect(this.x, this.y, this.w, this.h); // Outer rectangle (walls)
+  }
+}
+
+class Wall {
+  constructor(room) {
+    this.room = room; // The room object
+  }
+
+  display() {
+    const { x, y, w, h } = this.room; // Use w and h instead of width and height
+
+    var wallColor = 'black'  //setting variable for color consistency
+    stroke(wallColor); // Wall color
+    strokeWeight(2); // Set a positive stroke weight for visibility
+
+    // Draw the walls as lines
+    // Top wall
+    line(x, y, x + w, y);
+    // Right wall
+    line(x + w, y, x + w, y + h);
+    // Bottom wall
+    line(x + w, y + h, x, y + h);
+    // Left wall
+    line(x, y + h, x, y);
+  }
+}
+
+
+function mouseClicked(){
+  print(mouseX+" ,"+mouseY)
+}
