@@ -1,0 +1,74 @@
+let room01;
+let wall01;
+
+let player;
+
+let lastStage = 3;
+
+let startingRoom = room[0];
+//centered point for start point spawn
+let startX = room[0][3]/2;
+let startY = room[0][4]/2;
+
+let lastRoom = room[room.length-1]
+
+
+function setup() {
+  createCanvas(500, 500);
+}
+
+function draw() {
+  background(220);
+}
+
+
+//judging if the game is over or not
+function checkGameOver(playerLife, stageNum){
+  this.playerLife = playerLife;
+  this.stageNum = stageNum;
+  if(this.playerLife==false){
+    gameOver();
+  }
+  else{
+    if(stageNum<=lastStage){
+      stageClear(stageNum);
+    }
+    else {
+      //just for error checking purposes
+      textSize(50); textAlign(CENTER);
+      text("ERROR!! Stage# bigger than last stage",width/2,height/2);
+    }}
+  }
+
+
+function gameOver(){
+  noLoop(); 
+  //reset the player location to the first room
+  player.erase();
+  player.display(startX,startY);
+  
+  //print out the game over screen on top of everything
+  fill(0,0,0,0.25); rect(0,0,width,height);
+  textSize(80); textAlign(CENTER);
+  text("GAME OVER",width/2,height/2);
+  
+  
+}
+
+function stageClear(stageNum){
+  this.stageNum = stageNum;
+  
+  if(this.stageNum<lastStage){
+    //print out the stage clear screen on top of everything
+    textSize(80); textAlign(CENTER);
+    text("Stage "+this.stageNum+" Clear!",width/2,height/2);
+    
+    //reset player location to starting room
+    
+  }
+  else if(this.stageNum==lastStage){
+    textSize(80); textAlign(CENTER);
+    text("Game Clear!",width/2,height/2);
+  }
+  
+}
