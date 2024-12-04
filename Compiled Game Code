@@ -1,0 +1,360 @@
+//variables for the player, pointer, and bullets
+let player;
+let pointer;
+let bullets = [];
+let bulletOrder = 0;
+let powerupsOnScreen = [];
+
+let globalTimer;
+let powerUpSpawnTimer;
+
+let powerUpDelay = 300; //sets how long it takes before the next power up spawns
+let powerUpDuration = 300; //sets how long the power up lasts
+
+//variable which set the speed of the player and bullets
+let permMoveSpeed = 5;
+let permBulletSpeed = 7;
+
+let bulletSpeed = permBulletSpeed;
+let moveSpeed = permMoveSpeed;
+
+//walls
+let room01;
+let wall01;
+
+//creates the canvas and sets up the player and pointer.
+function setup() {
+  createCanvas(400, 400);
+  player = new playerCharacter(width / 2, height / 2);
+  pointer = new Pointer();
+  room01 = new Room(50, 50, 300, 300);
+  wall01 = new Wall(room01);
+  rectMode(CENTER);
+}
+
+function draw() {
+  background(220);
+
+  //room stuff
+  room01.display();
+  wall01.display();
+
+  //draws and updates the pointer (see player.js)
+  pointer.direct();
+  pointer.display();
+
+  //draws and updates the player (see player.js)
+  player.display();
+  player.move();
+  player.powerReset();
+  player.checkCollision(wall01);
+
+  //draws and updates all of the bullets in the bullets array (see projectiles.js)
+  for (let i = 0; i < bullets.length; i++) {
+    bullets[i].display();
+    bullets[i].move();
+    bullets[i].checkCollision(wall01);
+  }
+
+  //spawns the powerup (see powerups.js)
+  powerUpSpawnTimer = frameCount % powerUpDelay;
+  spawnPowerup();
+
+  //displays the powerups and checks if the player touches any (see powerups.js)
+  for (let i = 0; i < powerupsOnScreen.length; i++) {
+    powerupsOnScreen[i].display();
+    powerupsOnScreen[i].activateCheck();
+  }
+
+  //sets up the global timer because frameCount doesn't carry over to other scripts.
+  globalTimer = frameCount;
+}
+
+//PLAYER CODE
+
+//player object
+function playerCharacter(x_, y_) {
+  this.x = x_; //player's X position
+  this.y = y_; //player's Y position
+  this.width = 20;
+
+  this.powerTimer = -1; //initializes the timer for the powerups
+
+  //displays the player
+  this.display = function () {
+    rectMode(CENTER);
+    strokeWeight(1);
+    fill(255);
+    square(this.x, this.y, this.width);
+  };
+
+  //moves the player (and pointer) around when certain keys are pressed. You can either use the arrow keys or W, A, S, and D.
+  this.move = function () {
+    if (keyIsDown(RIGHT_ARROW) && keyIsDown(UP_ARROW)) {
+      this.x = this.x + moveSpeed / sqrt(2);
+      this.y = this.y - moveSpeed / sqrt(2);
+    } else if (keyIsDown(68) && keyIsDown(87)) {
+      this.x = this.x + moveSpeed / sqrt(2);
+      this.y = this.y - moveSpeed / sqrt(2);
+    } else if (keyIsDown(RIGHT_ARROW) && keyIsDown(DOWN_ARROW)) {
+      this.x = this.x + moveSpeed / sqrt(2);
+      this.y = this.y + moveSpeed / sqrt(2);
+    } else if (keyIsDown(68) && keyIsDown(83)) {
+      this.x = this.x + moveSpeed / sqrt(2);
+      this.y = this.y + moveSpeed / sqrt(2);
+    } else if (keyIsDown(LEFT_ARROW) && keyIsDown(DOWN_ARROW)) {
+      this.x = this.x - moveSpeed / sqrt(2);
+      this.y = this.y + moveSpeed / sqrt(2);
+    } else if (keyIsDown(65) && keyIsDown(83)) {
+      this.x = this.x - moveSpeed / sqrt(2);
+      this.y = this.y + moveSpeed / sqrt(2);
+    } else if (keyIsDown(LEFT_ARROW) && keyIsDown(UP_ARROW)) {
+      this.x = this.x - moveSpeed / sqrt(2);
+      this.y = this.y - moveSpeed / sqrt(2);
+    } else if (keyIsDown(65) && keyIsDown(87)) {
+      this.x = this.x - moveSpeed / sqrt(2);
+      this.y = this.y - moveSpeed / sqrt(2);
+    } else if (keyIsDown(RIGHT_ARROW)) {
+      this.x = this.x + moveSpeed;
+    } else if (keyIsDown(68)) {
+      this.x = this.x + moveSpeed;
+    } else if (keyIsDown(DOWN_ARROW)) {
+      this.y = this.y + moveSpeed;
+    } else if (keyIsDown(83)) {
+      this.y = this.y + moveSpeed;
+    } else if (keyIsDown(LEFT_ARROW)) {
+      this.x = this.x - moveSpeed;
+    } else if (keyIsDown(65)) {
+      this.x = this.x - moveSpeed;
+    } else if (keyIsDown(UP_ARROW)) {
+      this.y = this.y - moveSpeed;
+    } else if (keyIsDown(87)) {
+      this.y = this.y - moveSpeed;
+    }
+  };
+
+  //resets the player (used for powerups)
+  this.reset = function () {
+    moveSpeed = permMoveSpeed;
+    bulletSpeed = permBulletSpeed;
+  };
+
+  //activates a certain powerup based on the powerup type. also sets a timer for the powerup.
+  this.activate = function (type) {
+    this.powerTimer = globalTimer % powerUpDuration;
+    if (type === "speed") {
+      if (moveSpeed === permMoveSpeed) {
+        moveSpeed = moveSpeed * 2;
+      }
+    }
+  };
+
+  //resets the player once the powerUpDuration timer has expired.
+  this.powerReset = function () {
+    if (this.powerTimer === (globalTimer % 300) + 1) {
+      this.reset();
+    }
+  };
+
+  //collision detection for the player
+  this.checkCollision = function (wall) {
+    const bounds = wall.getBounds();
+
+    if (this.x - this.width / 1.4 < bounds.left) {
+      this.x = bounds.left + this.width / 1.4; // Push player to the right off the left wall
+    }
+    if (this.x + this.width / 1.4 > bounds.right) {
+      this.x = bounds.right - this.width / 1.4; // Push player to the left off the right wall
+    }
+    if (this.y - this.width / 1.4 < bounds.top) {
+      this.y = bounds.top + this.width / 1.4; // Push player down form the top wall
+    }
+    if (this.y + this.width / 1.4 > bounds.bottom) {
+      this.y = bounds.bottom - this.width / 1.4; // Push player up from the bottom wall
+    }
+  };
+}
+
+//pointer object
+function Pointer() {
+  //sets the distance the pointer is from the player, as well as its initial x and y position
+  this.distance = 30;
+  this.x = player.x + this.distance;
+  this.y = player.y;
+
+  //trigonometry magic which figures out the location of the pointer (if you want to figure out what's going on here and write a proper explanation then be my guest)
+  this.direct = function () {
+    let angleCoef = atan2(mouseY - player.y, mouseX - player.x);
+    this.x = player.x + this.distance * cos(angleCoef);
+    this.y = player.y + this.distance * sin(angleCoef);
+  };
+
+  //displays the pointer
+  this.display = function () {
+    strokeWeight(4);
+    point(this.x, this.y);
+  };
+}
+
+//POWERUP CODE
+
+//spawns a new powerup in a random spot on the canvas.
+function spawnPowerup() {
+  if (powerUpSpawnTimer === 0) {
+    powerupsOnScreen.pop();
+    let newPower = new powerUp(random(width), random(height), "speed");
+    powerupsOnScreen.push(newPower);
+  }
+}
+
+//the power up object.
+function powerUp(x_, y_, t_) {
+  this.x = x_; //x position
+  this.y = y_; //y position
+  this.type = t_; //type of powerup
+
+  this.radius = 10; //radius of the circle
+  this.activated = false; //whether or not the powerup has been activated
+
+  //displays the powerup (if the player hasn't already activated it)
+  this.display = function () {
+    if (this.activated === false) {
+      fill(0, 0, 255);
+      circle(this.x, this.y, this.radius);
+    }
+  };
+
+  //activates the powerup if the player gets within a certain distance (see player.js), and makes sure it can't be activated more than once.
+  this.activateCheck = function () {
+    if (dist(player.x, player.y, this.x, this.y) < this.radius * 2) {
+      if (this.activated === false) {
+        player.activate(this.type);
+        this.activated = true;
+      }
+    }
+  };
+}
+
+//removes the powerup from the screen.
+function removeThisPowerup() {
+  powerupsOnScreen.pop();
+}
+
+//BULLET CODE
+
+//bullet object. Could maybe be reused for other projectiles if we feel like giving the enemies guns
+function projectile(x_, y_, o_) {
+  //sets the bullet's initial x and y positions, which should be wherever the pointer is at.
+  this.x = x_;
+  this.y = y_;
+
+  //this is the order that the bullet was spawned in. This is useful for finding specific bullets.
+  this.order = o_;
+
+  //more trigonometry magic! This time, it figures out how fast the bullets should be moving along the X and Y axis
+  let angleCoef = atan2(mouseY - player.y, mouseX - player.x);
+  this.xVelocity = bulletSpeed * cos(angleCoef);
+  this.yVelocity = bulletSpeed * sin(angleCoef);
+
+  //displays the bullets
+  this.display = function () {
+    strokeWeight(3);
+    point(this.x, this.y);
+  };
+
+  //moves the bullets
+  this.move = function () {
+    this.x = this.x + this.xVelocity;
+    this.y = this.y + this.yVelocity;
+  };
+
+  //checks for a bullet's collision with a wall and calls the delete function on that specific bullet. this is mostly recycled from the player collision.
+  this.checkCollision = function (wall) {
+    const bounds = wall.getBounds();
+    if (this.x < bounds.left) {
+      removeBullet(this.order);
+    }
+    if (this.x > bounds.right) {
+      removeBullet(this.order);
+    }
+    if (this.y < bounds.top) {
+      removeBullet(this.order);
+    }
+    if (this.y > bounds.bottom) {
+      removeBullet(this.order);
+    }
+  };
+}
+
+//function which deletes the bullet by cycling through the list until it gets to the bullet specified by the order, then deletes it.
+function removeBullet(order) {
+  for (let i = 0; i < bullets.length; i++) {
+    if (bullets[i].order === order) {
+      bullets.splice(i, 1);
+      i = bullets.length;
+    }
+  }
+}
+
+//makes a new bullet whenever the mouse is pressed, then adds it to the array of bullets.
+function mousePressed() {
+  let bullet = new projectile(pointer.x, pointer.y, bulletOrder);
+  bullets.push(bullet);
+  bulletOrder++;
+}
+
+//ROOM AND WALL CODE
+
+class Room {
+  constructor(x, y, w, h) {
+    this.x = x; // x position of the room
+    this.y = y; // y position of the room
+    this.w = w; // width of the room
+    this.h = h; // height of the room
+  }
+
+  display() {
+    // Draw the room
+    stroke("white"); // Made the rooms starting wall color white. Allows to check if walls have been placed,
+    fill("white");
+    rectMode(CORNER);
+    rect(this.x, this.y, this.w, this.h); // Outer rectangle postion and dimension.
+  }
+}
+
+class Wall {
+  constructor(room) {
+    this.room = room; // grabs the room object that is put into it above.
+    this.wallWidth = 10;
+  }
+
+  display() {
+    const { x, y, w, h } = this.room; // Use w and h instead of width and height
+    rectMode(CORNER);
+    stroke("black"); // Wall color
+    strokeWeight(this.wallWidth); // Gives clear border for the wall
+
+    // uses lines for the walls that takes any rectanigale and makes sure that the walls are printed corrcetly
+
+    // Top wall
+    line(x, y, x + w, y);
+    // Right wall
+    line(x + w, y, x + w, y + h);
+    // Bottom wall
+    line(x + w, y + h, x, y + h);
+    // Left wall
+    line(x, y + h, x, y);
+  }
+
+  // For the player class to define each wall that is made. Line 78
+  getBounds() {
+    const { x, y, w, h } = this.room;
+    return {
+      left: x,
+      right: x + w,
+      top: y,
+      bottom: y + h,
+      wallWidth: this.wallWidth,
+    };
+  }
+}
