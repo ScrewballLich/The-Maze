@@ -1,18 +1,18 @@
-let room01;
-let wall01;
+let room02;
+let wall02;
 
 let player;
 
 let mazeImage;
 
 function preload() {
-  mazeImage = loadImage("maze1.jpg"); 
+  mazeImage = loadImage("maze2.jpg"); 
 }
 
 function setup() {
   createCanvas(500, 500);
-  room01 = new Room(120, 100, 400, 400);
-  wall01 = new Wall(room01);
+  room02 = new Room(120, 100, 400, 400);
+  wall02 = new Wall(room02);
   player = new Player(width / 2, height / 2, 20);
 }
 
@@ -21,12 +21,12 @@ function draw() {
 
   Image(mazeImage, 0, 0, width, height);
   
-  room01.display();
-  wall01.display();
+  room02.display();
+  wall02.display();
   
   player.update();
   player.display();
-  player.checkCollision(wall01);
+  player.checkCollision(wall02);
   
 }
 

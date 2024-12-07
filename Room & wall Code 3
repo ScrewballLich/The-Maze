@@ -1,18 +1,18 @@
-let room01;
-let wall01;
+let room03;
+let wall03;
 
 let player;
 
 let mazeImage;
 
 function preload() {
-  mazeImage = loadImage("maze1.jpg"); 
+  mazeImage = loadImage("maze3.jpg"); 
 }
 
 function setup() {
   createCanvas(500, 500);
-  room01 = new Room(120, 100, 400, 400);
-  wall01 = new Wall(room01);
+  room03 = new Room(120, 100, 400, 400);
+  wall03 = new Wall(room03);
   player = new Player(width / 2, height / 2, 20);
 }
 
