@@ -1,85 +1,143 @@
-let room01;
-let wall01;
-
-let player;
-
-let mazeImage;
-
-function preload() {
-  mazeImage = loadImage("maze1.jpg"); 
-}
-
 function setup() {
   createCanvas(500, 500);
-  room01 = new Room(120, 100, 400, 400);
-  wall01 = new Wall(room01);
+  
+  cols = floor(25);
+  rows = floor(25);
+  
+  for (var r = 0;r < rows; r++)
+    {
+     for (var c = 0;c < cols; c++)
+       {
+         var cell = new Cell(r,c);
+         grid.push(cell);
+       }
+    }
+  
+  room01 = new Room(2, 2, 100, 100, true, false, false, true,);
+  rooms.push(room01)
+  
+  room02 = new Room(1, 2, 100, 100, false, true, false, true);
+  rooms.push(room02)
+  
+  room03 = new Room(1, 3, 100, 100, false, true, true, false);
+  rooms.push(room03)
+  
+  room04 = new Room(2, 3, 100, 100, true, false, true, false);
+  rooms.push(room04)
+  
   player = new Player(width / 2, height / 2, 20);
 }
 
 function draw() {
   background(220);
 
-  Image(mazeImage, 0, 0, width, height);
+  for (var i = 0;i < grid.length; i++)
+    {
+      grid[i].show();
+    }
   
-  room01.display();
-  wall01.display();
+  for ( var j = 0; j < rooms.length; j++)
+    {
+      rooms[j].display();
+      player.checkCollision(rooms[j]);
+    }
   
   player.update();
   player.display();
-  player.checkCollision(wall01);
+  
   
 }
 
 class Room {
-  constructor(x, y, w, h) {
-    this.x = x; // x position of the room
-    this.y = y; // y position of the room
+  constructor(row, col, w, h, left, right, top, bot) {
+    this.x = row * s; // x position of the room
+    this.y = col * s; // y position of the room
     this.w = w; // width of the room
     this.h = h; // height of the room
+    this.walls = new Wall(this, left, right, top, bot); // Create walls for the room
   }
 
   display() {
     // Draw the room
-    stroke('white'); // Made the rooms starting wall color white. Allows to check if walls have been placed,
+    stroke('white');
     fill('white');
-    rect(this.x, this.y, this.w, this.h); // Outer rectangle postion and dimension.
+    rect(this.x, this.y, this.w, this.h);
+    this.walls.display(); // Display the walls
   }
 }
 
+
 class Wall {
-  constructor(room) {
-    this.room = room; // grabs the room object that is put into it above.
+constructor(room, left, right, top, bot) {
+    this.room = room;
+    this.left = left;
+    this.right = right;
+    this.top = top;
+    this.bot = bot;
   }
 
   display() {
     const { x, y, w, h } = this.room; // Use w and h instead of width and height
-
     stroke('black'); // Wall color
     strokeWeight(10); // Gives clear border for the wall
 
-    // uses lines for the walls that takes any rectanigale and makes sure that the walls are printed corrcetly 
+ // uses lines for the walls that takes any rectanigale and makes sure that the walls are printed corrcetly 
+    
+      // Left wall
+    if(this.left) // calls for a doorway to be made on the left wall of the room
+      {
+        line(x, y, x, y + h/4);
+        line(x, y + h - h/4, x, y + h);
+      }
+    else
+      {
+        line(x, y + h, x, y);//solid wall if door is not called
+      }
+    
+    // Right wall
+    if(this.right) // calls for a doorway to be made on the right wall of the room
+      {
+        line(x + w, y, x + w, y + h/4);
+        line(x + w , y + h - h/4, x + w, y + h);
+      }
+    else
+      {
+        line(x + w, y, x + w, y + h);//solid wall if door is not called
+      }
     
     // Top wall
-    line(x, y, x + w, y);
-    // Right wall
-    line(x + w, y, x + w, y + h);
+    if(this.top) // calls for a doorway to be made on the top wall of the room
+      {
+        line(x, y, x + w/4, y);
+        line(x + w - w/4 , y, x + w, y);
+      }
+    else
+      {
+        line(x, y, x + w, y);//solid wall if door is not called
+      }
+    
     // Bottom wall
-    line(x + w, y + h, x, y + h);
-    // Left wall
-    line(x, y + h, x, y);
+    if(this.bot) // calls for a doorway to be made on the bottom wall of the room
+      {
+        line(x , y + h, x + w/4, y + h);
+        line(x + w - w/4, y + h, x + w, y + h);
+      }
+    else
+      {
+        line(x + w, y + h, x, y + h);//solid wall if door is not called
+      }
   }
   
-  // For the player class to define each wall that is made. Line 78
+  // For the player class to define walls of the room. Line 78
     getBounds() {
-    const { x, y, w, h } = this.room;
+    const { x, y, w, h } = this.room;  
     return {
       left: x,
       right: x + w,
       top: y,
       bottom: y + h
     };
-  }
-
+  } 
 }
 
 class Player {
@@ -107,20 +165,35 @@ class Player {
   }
 
   // Wall Collision check the uses the get bounds method in wall. Line 66
-  checkCollision(wall) {
-    const bounds = wall.getBounds();
-    
+   checkCollision(room) {
+    const bounds = room.walls.getBounds(); // Get the bounds of the room's walls
+
+    // Check collision with left wall
     if (this.x - this.radius < bounds.left) {
-      this.x = bounds.left + this.radius; // Push player to the right off the left wall
+      if (!room.walls.left) { // Check if there is a door
+        this.x = bounds.left + this.radius; // Push player to the right off the left wall
+      }
     }
+
+    // Check collision with right wall
     if (this.x + this.radius > bounds.right) {
-      this.x = bounds.right - this.radius; // Push player to the left off the right wall
+      if (!room.walls.right) { // Check if there is a door
+        this.x = bounds.right - this.radius; // Push player to the left off the right wall
+      }
     }
+
+    // Check collision with top wall
     if (this.y - this.radius < bounds.top) {
-      this.y = bounds.top + this.radius; // Push player down form the top wall
+      if (!room.walls.top) { // Check if there is a door
+        this.y = bounds.top + this.radius; // Push player down from the top wall
+      }
     }
+
+    // Check collision with bottom wall
     if (this.y + this.radius > bounds.bottom) {
-      this.y = bounds.bottom - this.radius; // Push player up from the bottom wall
+      if (!room.walls.bot) { // Check if there is a door
+        this.y = bounds.bottom - this.radius; // Push player up from the bottom wall
+      }
     }
   }
 
@@ -128,5 +201,20 @@ class Player {
     fill(100, 150, 250);
     strokeWeight(5);
     ellipse(this.x, this.y, this.radius * 2, this.radius * 2);
+  }
+}
+
+function Cell(r,c)
+{
+  this.r = r;
+  this.c = c;
+  
+  this.show = function()
+  {
+    var x = r*s;
+    var y = c*s;
+    stroke(255);
+    noFill();
+    rect(x,y,s,s)
   }
 }
