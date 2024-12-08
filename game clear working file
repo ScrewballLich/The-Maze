@@ -1,0 +1,73 @@
+function processNewWallCode() {
+  let currentLevel = levels[0];
+
+  for (var i = 0; i < grid.length; i++) {
+    grid[i].show();
+  }
+
+  for (var j = 0; j < currentLevel.length; j++) {
+    currentLevel[j].display();
+    // Check if the player is in the current room
+    if (currentLevel[j].isOccupied(player)) {
+      currentRoom = currentLevel[j]; // Set the current room
+    }
+
+    if (currentRoom) {
+      player.checkCollision(currentRoom);
+      //checking if the current room is the last room(game clear room)
+      if(level3.includes(currentRoom)){
+        print("testing, it's running")
+        gameClear();
+      }
+      else
+      {
+        // Check if the room has a finish and if the player is in it
+      if (currentRoom.finish) {
+        // Move to the next level if there is one
+        if (levels.length > 1) {
+          levels.shift(); // Remove the current level
+          // Reset the player's position to the starting position of the new room
+          player.x = levels[0][0].x + levels[0][0].w / 2; 
+          // Center the player in the new room
+          player.y = levels[0][0].y + levels[0][0].h / 2;
+        }
+      }
+      }
+
+    }
+  }
+}
+
+
+function checkClear(playerLive){
+  this.playerLive = playerLive;
+
+  if(this.playerLive==false)
+  {
+    gameOver();
+  }
+}
+
+function gameOver(){
+  
+  noLoop();   
+  player.x = levels[0][0].x + levels[0][0].w / 2;
+  player.y = levels[0][0].y + levels[0][0].h / 2;
+  
+  //print out the game over screen on top of everything
+  fill(0,0,0,0.25); rect(0,0,width,height);
+  textSize(80); textAlign(CENTER);
+  text("GAME OVER",width/2,height/2);
+  
+  
+}
+
+function gameClear(){
+  noLoop();
+
+  //print out the game over screen on top of everything
+  fill(255,255,255,0.25); rect(0,0,width,height);
+  textSize(80); textAlign(CENTER);
+  text("GAME CLEAR!",width/2,height/2);
+
+}
