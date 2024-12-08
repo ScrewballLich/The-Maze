@@ -82,22 +82,37 @@ function playerCharacter(x_, y_) {
     }
   };
 
-  this.checkCollision = function (wall) {
-    const bounds = wall.getBounds();
+  this.checkCollision = function(room) {
+  const bounds = room.walls.getBounds(); // Get the bounds of the room's walls
 
-    if (this.x - this.width / 1.4 < bounds.left) {
-      this.x = bounds.left + this.width / 1.4; // Push player to the right off the left wall
+  // Check collision with left wall
+  if (this.x - this.width < bounds.left) {
+    if (!room.walls.left) { // Check if there is a door
+      this.x = bounds.left + this.width; // Push player to the right off the left wall
     }
-    if (this.x + this.width / 1.4 > bounds.right) {
-      this.x = bounds.right - this.width / 1.4; // Push player to the left off the right wall
+  }
+
+  // Check collision with right wall
+  if (this.x + this.width > bounds.right) {
+    if (!room.walls.right) { // Check if there is a door
+      this.x = bounds.right - this.width; // Push player to the left off the right wall
     }
-    if (this.y - this.width / 1.4 < bounds.top) {
-      this.y = bounds.top + this.width / 1.4; // Push player down form the top wall
+  }
+
+  // Check collision with top wall
+  if (this.y - this.width < bounds.top) {
+    if (!room.walls.top) { // Check if there is a door
+      this.y = bounds.top + this.width; // Push player down from the top wall
     }
-    if (this.y + this.width / 1.4 > bounds.bottom) {
-      this.y = bounds.bottom - this.width / 1.4; // Push player up from the bottom wall
+  }
+
+  // Check collision with bottom wall
+  if (this.y + this.width > bounds.bottom) {
+    if (!room.walls.bot) { // Check if there is a door
+      this.y = bounds.bottom - this.width; // Push player up from the bottom wall
     }
-  };
+  }
+}
 }
 
 //pointer object
@@ -109,7 +124,7 @@ function Pointer() {
 
   //trigonometry magic which figures out the location of the pointer (if you want to figure out what's going on here and write a proper explanation then be my guest)
   this.direct = function () {
-    let angleCoef = atan2(mouseY - player.y, mouseX - player.x);
+    let angleCoef = atan2(mouseY - height / 2, mouseX - width / 2)
     this.x = player.x + this.distance * cos(angleCoef);
     this.y = player.y + this.distance * sin(angleCoef);
   };
