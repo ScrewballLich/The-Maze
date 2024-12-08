@@ -1,24 +1,28 @@
-let player;
+let player;// the player object
 
-var cols, rows;
-var s = 100;
+var cols, rows;//varblies for rows and columns of the grid
+var s = 100;//size of the squares that are made by the grid
 
-var grid = [];
-let levels = [];
+var grid = [];// array to hold the grid system 
+let levels = [];// array to hold the levels 
 let currentRoom; // Track the current room
-
 
 function setup() {
   createCanvas(500, 500);
+
+  //level arrays that hold thier own rooms
   let level1 = [];
   let level2 = [];
   
+  // push level arrays to global levels array
   levels.push(level1);
   levels.push(level2);
   
-  cols = floor(25);
-  rows = floor(25);
+  // sets how many rows and columns there are.
+  cols = floor(100);
+  rows = floor(100);
   
+  //loop that goes throgh and places the rows and columns
   for (var r = 0;r < rows; r++)
     {
      for (var c = 0;c < cols; c++)
@@ -28,6 +32,7 @@ function setup() {
        }
     }
   
+  //rooms that are then pushed into there levels
   room01 = new Room(2, 2, 100, 100, true, false, false, false, false);
   level1.push(room01)
   
@@ -59,6 +64,7 @@ function setup() {
   room15 = new Room(2, 3, 100, 100, false, false, true, false, true);
   level2.push(room15)
   
+//spawns player in the first room  
 player = new Player(room01.x + room01.w / 2, room01.y + room01.h / 2, 20); 
 }
 
@@ -68,14 +74,16 @@ function draw() {
   // Move the canvas based on the player's position
   translate(-player.x + width / 2, -player.y + height / 2);
   
+  //makes a varible so we can define what the cuurent level is.
    let currentLevel = levels[0];
 
+  //loop to disply the grid
   for (var i = 0;i < grid.length; i++)
     {
       grid[i].show();
     }
   
-  
+// loop that goes through the currentlevel's array   
 for ( var j = 0; j < currentLevel.length; j++)
 {
  currentLevel[j].display();
@@ -97,8 +105,8 @@ for ( var j = 0; j < currentLevel.length; j++)
       if (levels.length > 1) 
       {
         levels.shift(); // Remove the current level
-                // Reset the player's position to the starting position of the new room
-        player.x = levels[0][0].x + levels[0][0].w / 2; // Center the player in the new room
+        // Reset the player's position to the starting position of the new room
+        player.x = levels[0][0].x + levels[0][0].w / 2;
         player.y = levels[0][0].y + levels[0][0].h / 2;
       }
     }
@@ -106,22 +114,23 @@ for ( var j = 0; j < currentLevel.length; j++)
     
   player.update();
   player.display();
-  
 }
 
+// this Room class makes the room which then can be place at any cell on the grid. also need to define if there is a open on an of the sides of the room with ture and false. also need to stat if the room is the finsh room
 class Room {
-  constructor(row, col, w, h, left, right, top, bot, fin = false) {
+  constructor(row, col, w, h, left, right, top, bot, fin = false, end = false) {
     this.x = row * s; // x position of the room
     this.y = col * s; // y position of the room
     this.w = w; // width of the room
     this.h = h; // height of the room
     this.walls = new Wall(this, left, right, top, bot); // Create walls for the room
-    this.finish = fin; // Finish flag
+    this.finish = fin; // this is the finsh room
+    this.end = end; // this is the last fisish room
   }
 
   display() {
     // Draw the room
-    if (this.finish)
+    if (this.finish) // if the room is the finsh room turn it green
       {
     stroke('green');
     fill('green');
@@ -132,10 +141,12 @@ class Room {
     fill('white');
     }
     
+    // makes the room
     rect(this.x, this.y, this.w, this.h);
     this.walls.display(); // Display the walls
   }
   
+  //this function is used to detrime the player location mostly for the finish room so a player can move on to the next level.
   isOccupied(player) 
   {
 return (
@@ -148,6 +159,7 @@ return (
   }
 }
 
+// this class makes the walls that are displayed on top of the room class.
 class Wall {
 constructor(room, left, right, top, bot) {
     this.room = room;
@@ -201,6 +213,7 @@ constructor(room, left, right, top, bot) {
   } 
 }
 
+// player class to move through the maze
 class Player {
   constructor(x, y, radius) {
     this.x = x;
@@ -265,15 +278,16 @@ class Player {
   }
 }
 
+//defines the cells on the grid
 function Cell(r,c)
 {
-  this.r = r;
-  this.c = c;
+  this.r = r;// rows
+  this.c = c;// columns
   
   this.show = function()
   {
-    var x = r*s;
-    var y = c*s;
+    var x = r*s;//postion of x of the cell
+    var y = c*s;//postion of y of the celll
     stroke(255);
     noFill();
     rect(x,y,s,s)

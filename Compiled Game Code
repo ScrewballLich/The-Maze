@@ -18,11 +18,11 @@ let permBulletSpeed = 7;
 let bulletSpeed = permBulletSpeed;
 let moveSpeed = permMoveSpeed;
 
-//room and wall stuff
-var cols, rows;
-var s = 100;
-var grid = [];
-let levels = [];
+var cols, rows;//varblies for rows and columns of the grid
+var s = 100;//size of the squares that are made by the grid
+
+var grid = [];// array to hold the grid system 
+let levels = [];// array to hold the levels 
 let currentRoom; // Track the current room
 
 //creates the canvas and sets up the player and pointer.
@@ -31,13 +31,11 @@ function setup() {
   strokeCap(PROJECT);
   
   //sets up the new wall code (see wall code, line 79)
-  setupNewWallCode();
+  setupLevelCode();
   player = new playerCharacter(room01.x + room01.w / 2, room01.y + room01.h / 2, 20);
   
   pointer = new Pointer();
   room01 = new Room(50, 50, 300, 300);
-  wall01 = new Wall(room01);
-  
 }
 
 function draw() {
@@ -48,7 +46,7 @@ function draw() {
   
   //processes the new collision detections and room/wall display (see wall code, line 79)
   rectMode(CORNER);
-  processNewWallCode();
+  levelTranslationCode();
 
   //draws and updates the pointer (see player code, line 260)
   pointer.direct();
@@ -79,20 +77,23 @@ function draw() {
   globalTimer = frameCount;
 }
 
-//ROOM AND WALL CODE
-
-function setupNewWallCode() {
+//function to hold level arrays and make and push rooms to level arrays
+function setupLevelCode() {
+  //level arrays that hold thier own rooms
   let level1 = [];
   let level2 = [];
   let level3 = [];
 
+  //levels are pushed into levels global array
   levels.push(level1);
   levels.push(level2);
   levels.push(level3);
 
+  //varibles for how many rows and columns there are
   cols = floor(25);
   rows = floor(25);
 
+  //loop that goes throgh and places the rows and columns
   for (var r = 0; r < rows; r++) {
     for (var c = 0; c < cols; c++) {
       var cell = new Cell(r, c);
@@ -254,8 +255,8 @@ function setupNewWallCode() {
   level3.push(room257)
   }
 
-
-function processNewWallCode() {
+// this function is the code that checks if the player has completed the level and moves to the next level if the player has reached the finsh room.
+function levelTranslationCode() {
   let currentLevel = levels[0];
 
   for (var i = 0; i < grid.length; i++) {
@@ -287,6 +288,7 @@ function processNewWallCode() {
 }
 
 
+// this Room class makes the room which then can be place at any cell on the grid. also need to define if there is a open on an of the sides of the room with ture and false. also need to stat if the room is the finsh room
 class Room {
   constructor(row, col, w, h, left, right, top, bot, fin = false) {
     this.x = row * s; // x position of the room
@@ -299,32 +301,39 @@ class Room {
 
   display() {
     // Draw the room
-    if (this.finish) {
-      stroke("green");
-      fill("green");
-    } else {
-      stroke("white");
-      fill("white");
+    if (this.finish) // if the room is the finsh room turn it green
+      {
+    stroke('green');
+    fill('green');
+      }
+    else
+    {
+    stroke('white');
+    fill('white');
     }
-
+    
+    // makes the room
     rect(this.x, this.y, this.w, this.h);
     this.walls.display(); // Display the walls
   }
+  
+  //this function is used to detrime the player location mostly for the finish room so a player can move on to the next level.
+  isOccupied(player) 
+  {
+return (
+        player.x > this.x &&
+        player.x < this.x + this.w &&
+        player.y > this.y &&
+        player.y < this.y + this.h
+      );
 
-  isOccupied(player) {
-    return (
-      player.x > this.x &&
-      player.x < this.x + this.w &&
-      player.y > this.y &&
-      player.y < this.y + this.h
-    );
   }
 }
 
 
-
+// this class makes the walls that are displayed on top of the room class.
 class Wall {
-  constructor(room, left, right, top, bot) {
+constructor(room, left, right, top, bot) {
     this.room = room;
     this.left = left;
     this.right = right;
@@ -334,60 +343,64 @@ class Wall {
 
   display() {
     const { x, y, w, h } = this.room; // Use w and h instead of width and height
-    stroke("black"); // Wall color
+    stroke('black'); // Wall color
     strokeWeight(10); // Gives clear border for the wall
 
-    // uses lines for the walls that takes any rectanigale and makes sure that the walls are printed corrcetly
-
-    // Left wall
-    if (!this.left) {
-      // calls for a doorway to be made on the left wall of the room
-      line(x, y + h, x, y); //solid wall if door is not called
-    }
-
+ // uses lines for the walls that takes any rectanigale and makes sure that the walls are printed corrcetly 
+    
+      // Left wall
+    if(!this.left) // calls for a doorway to be made on the left wall of the room
+      {
+        line(x, y + h, x, y);//solid wall if door is not called
+      }
+    
     // Right wall
-    if (!this.right) {
-      // calls for a doorway to be made on the right wall of the room
-      line(x + w, y, x + w, y + h); //solid wall if door is not called
-    }
-
+    if(!this.right) // calls for a doorway to be made on the right wall of the room
+      {
+        line(x + w, y, x + w, y + h);//solid wall if door is not called
+      }
+    
     // Top wall
-    if (!this.top) {
-      // calls for a doorway to be made on the top wall of the room
-      line(x, y, x + w, y); //solid wall if door is not called
-    }
-
+    if(!this.top) // calls for a doorway to be made on the top wall of the room
+      {
+        line(x, y, x + w, y);//solid wall if door is not called
+      }
+    
     // Bottom wall
-    if (!this.bot) {
-      // calls for a doorway to be made on the bottom wall of the room
-      line(x + w, y + h, x, y + h); //solid wall if door is not called
-    }
+    if(!this.bot) // calls for a doorway to be made on the bottom wall of the room
+      {
+        line(x + w, y + h, x, y + h);//solid wall if door is not called
+      }
   }
-
+  
   // For the player class to define walls of the room. Line 78
-  getBounds() {
-    const { x, y, w, h } = this.room;
+    getBounds() {
+    const { x, y, w, h } = this.room;  
     return {
       left: x,
       right: x + w,
       top: y,
-      bottom: y + h,
+      bottom: y + h
     };
+  } 
+}
+
+//defines the cells on the grid
+function Cell(r,c)
+{
+  this.r = r;// rows
+  this.c = c;// columns
+  
+  this.show = function()
+  {
+    var x = r*s;//postion of x of the cell
+    var y = c*s;//postion of y of the celll
+    stroke(255);
+    noFill();
+    rect(x,y,s,s)
   }
 }
 
-function Cell(r, c) {
-  this.r = r;
-  this.c = c;
-
-  this.show = function () {
-    var x = r * s;
-    var y = c * s;
-    stroke(255);
-    noFill();
-    rect(x, y, s, s);
-  };
-}
 
 //PLAYER CODE
 
@@ -652,3 +665,4 @@ function powerUp(x_,y_,t_){
 function removeThisPowerup(){
   powerupsOnScreen.pop();
 }
+
