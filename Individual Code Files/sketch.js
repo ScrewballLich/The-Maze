@@ -18,9 +18,12 @@ let permBulletSpeed = 7;
 let bulletSpeed = permBulletSpeed;
 let moveSpeed = permMoveSpeed;
 
-//walls
-let room01;
-let wall01;
+//room and wall stuff
+var cols, rows;
+var s = 100;
+var grid = [];
+let levels = [];
+let currentRoom; // Track the current room
 
 //creates the canvas and sets up the player and pointer.
 function setup() {
@@ -29,15 +32,20 @@ function setup() {
   pointer = new Pointer();
   room01 = new Room(50, 50, 300, 300);
   wall01 = new Wall(room01);
-  rectMode(CENTER);
+  
+  //sets up the new wall code (see wall.js)
+  setupNewWallCode();
 }
 
 function draw() {
   background(220);
-
-  //room stuff
-  room01.display();
-  wall01.display();
+  
+  //camera
+  translate(-player.x + width / 2, -player.y + height / 2);
+  
+  //processes the new collision detections and room/wall display (see wall.js)
+  rectMode(CORNER)
+  processNewWallCode();
 
   //draws and updates the pointer (see player.js)
   pointer.direct();
@@ -47,13 +55,11 @@ function draw() {
   player.display();
   player.move();
   player.powerReset();
-  player.checkCollision(wall01);
 
   //draws and updates all of the bullets in the bullets array (see projectiles.js)
   for (let i = 0; i < bullets.length; i++) {
     bullets[i].display();
     bullets[i].move();
-    bullets[i].checkCollision(wall01);
   }
 
   //spawns the powerup (see powerups.js)
