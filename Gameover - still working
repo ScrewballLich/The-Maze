@@ -5,28 +5,164 @@ let player;
 
 let lastStage = 3;
 
-let startingRoom = room[0];
-//centered point for start point spawn
-let startX = room[0][3]/2;
-let startY = room[0][4]/2;
+let rooms = [];
+let startingRoom = rooms[0];
 
-let lastRoom = room[room.length-1]
 
 
 function setup() {
   createCanvas(500, 500);
+  room01 = new Room(120, 100, 300, 300);
+  //pushing the room value into the rooms array
+  rooms.push(room01);
+  
+  wall01 = new Wall(room01);
+  player = new Player(width / 2, height / 2, 20);
 }
 
 function draw() {
   background(220);
+  
+  room01.display();
+  wall01.display();
+  
+  player.update();
+  player.display();
+  player.checkCollision(wall01);
+  
+}
+
+class Room {
+  constructor(x, y, w, h) {
+    this.x = x; // x position of the room
+    this.y = y; // y position of the room
+    this.w = w; // width of the room
+    this.h = h; // height of the room
+  }
+
+  display() {
+    // Draw the room
+    stroke('white'); // Made the rooms starting wall color white. Allows to check if walls have been placed,
+    fill('white');
+    rect(this.x, this.y, this.w, this.h); // Outer rectangle postion and dimension.
+    //rooms.push(this.x, this.y, this.w, this.h);
+  }
+}
+
+
+class Wall {
+  constructor(room) {
+    this.room = room; // grabs the room object that is put into it above.
+  }
+
+  display() {
+    const { x, y, w, h } = this.room; // Use w and h instead of width and height
+
+    stroke('black'); // Wall color
+    strokeWeight(10); // Gives clear border for the wall
+
+    // uses lines for the walls that takes any rectanigale and makes sure that the walls are printed corrcetly 
+    
+    // Top wall
+    line(x, y, x + w, y);
+    // Right wall
+    line(x + w, y, x + w, y + h);
+    // Bottom wall
+    line(x + w, y + h, x, y + h);
+    // Left wall
+    line(x, y + h, x, y);
+  }
+  
+  // For the player class to define each wall that is made. Line 78
+    getBounds() {
+    const { x, y, w, h } = this.room;
+    return {
+      left: x,
+      right: x + w,
+      top: y,
+      bottom: y + h
+    };
+  }
+
+}
+
+
+class Obstacles {
+  
+  
+  
+  getBounds() {
+      const { x, y, w, h } = this.room;
+      return {
+        left: x,
+        right: x + w,
+        top: y,
+        bottom: y + h
+      };
+    }
+}
+
+
+
+class Player {
+  constructor(x, y, radius) {
+    this.x = x;
+    this.y = y;
+    this.radius = radius;
+    this.speed = 5;
+  }
+
+  // movement controls for player.
+  update() {
+    if (keyIsDown(LEFT_ARROW)) {
+      this.x -= this.speed;
+    }
+    if (keyIsDown(RIGHT_ARROW)) {
+      this.x += this.speed;
+    }
+    if (keyIsDown(UP_ARROW)) {
+      this.y -= this.speed;
+    }
+    if (keyIsDown(DOWN_ARROW)) {
+      this.y += this.speed;
+    }
+  }
+
+  // Wall Collision check the uses the get bounds method in wall. Line 66
+  checkCollision(wall) {
+    const bounds = wall.getBounds();
+    
+    if (this.x - this.radius < bounds.left) {
+      this.x = bounds.left + this.radius; // Push player to the right off the left wall
+    }
+    if (this.x + this.radius > bounds.right) {
+      this.x = bounds.right - this.radius; // Push player to the left off the right wall
+    }
+    if (this.y - this.radius < bounds.top) {
+      this.y = bounds.top + this.radius; // Push player down form the top wall
+    }
+    if (this.y + this.radius > bounds.bottom) {
+      this.y = bounds.bottom - this.radius; // Push player up from the bottom wall
+    }
+  }
+  
+  checkHit(obstacle){
+    
+  }
+
+  display() {
+    fill(100, 150, 250);
+    strokeWeight(5);
+    ellipse(this.x, this.y, this.radius * 2, this.radius * 2);
+  }
 }
 
 
 //judging if the game is over or not
-function checkGameOver(playerLife, stageNum){
-  this.playerLife = playerLife;
+function checkGameOver(playerLive, stageNum){
+  this.playerLive = playerLive;
   this.stageNum = stageNum;
-  if(this.playerLife==false){
+  if(this.playerLive==false){
     gameOver();
   }
   else{
@@ -45,6 +181,10 @@ function gameOver(){
   noLoop(); 
   //reset the player location to the first room
   player.erase();
+  //centered point for start point spawn
+    //first room of the array, width and height divided by two for centering
+  let startX = rooms[0][2]/2;
+  let startY = rooms[0][3]/2;
   player.display(startX,startY);
   
   //print out the game over screen on top of everything
@@ -64,7 +204,10 @@ function stageClear(stageNum){
     text("Stage "+this.stageNum+" Clear!",width/2,height/2);
     
     //reset player location to starting room
-    
+    player.erase();
+    let startX = rooms[0][2]/2;
+    let startY = rooms[0][3]/2;
+    player.display(startX,startY);
   }
   else if(this.stageNum==lastStage){
     textSize(80); textAlign(CENTER);
