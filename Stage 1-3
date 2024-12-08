@@ -1,4 +1,5 @@
-room01 = new Room(2, 2, 100, 100, true, false, false, false, false);
+//stage 1 setup
+  room01 = new Room(2, 2, 100, 100, true, false, false, false, false);
   level1.push(room01)
   
   room02 = new Room(1, 2, 100, 100, false, true, false, true, false);
@@ -63,9 +64,10 @@ room01 = new Room(2, 2, 100, 100, true, false, false, false, false);
   
   room20 = new Room(5, 2, 100, 100, false, false, false, true, true);
   level2.push(room20)
-
-
-//for rooms: row, col, w, h, left, right, top, bot, fin = false
+  
+  
+  
+  //for rooms: row, col, w, h, left, right, top, bot, fin = false
   //stage 3 setup
   room21 = new Room(5, 5, 100, 100, true, true, true, true, false);
   level3.push(room21)
@@ -85,7 +87,7 @@ room01 = new Room(2, 2, 100, 100, true, false, false, false, false);
   room223 = new Room(5, 3, 100, 100, false, true, true, false, false);
   level3.push(room223)
   
-  room224 = new Room(5, 2, 100, 100, false, false, true, true, false);
+  room224 = new Room(5, 2, 100, 100, false, false, false, true, false);
   level3.push(room224)
   
   
@@ -99,7 +101,7 @@ room01 = new Room(2, 2, 100, 100, true, false, false, false, false);
   room232 = new Room(4, 7, 100, 100, false, true, true, false, false);
   level3.push(room232)
   
-  room233 = new Room(5, 7, 100, 100, true, false, false, true, false);
+  room233 = new Room(5, 7, 100, 100, true, true, false, false, false);
   level3.push(room233)
   
   room234 = new Room(6, 7, 100, 100, true, false, false, true, false);
