@@ -18,9 +18,12 @@ let permBulletSpeed = 7;
 let bulletSpeed = permBulletSpeed;
 let moveSpeed = permMoveSpeed;
 
-//walls
-let room01;
-let wall01;
+//room and wall stuff
+var cols, rows;
+var s = 100;
+var grid = [];
+let levels = [];
+let currentRoom; // Track the current room
 
 //creates the canvas and sets up the player and pointer.
 function setup() {
@@ -29,38 +32,41 @@ function setup() {
   pointer = new Pointer();
   room01 = new Room(50, 50, 300, 300);
   wall01 = new Wall(room01);
-  rectMode(CENTER);
+  
+  //sets up the new wall code (see wall code, line 79)
+  setupNewWallCode();
 }
 
 function draw() {
   background(220);
+  
+  //camera
+  translate(-player.x + width / 2, -player.y + height / 2);
+  
+  //processes the new collision detections and room/wall display (see wall code, line 79)
+  rectMode(CORNER)
+  processNewWallCode();
 
-  //room stuff
-  room01.display();
-  wall01.display();
-
-  //draws and updates the pointer (see player.js)
+  //draws and updates the pointer (see player code, line 260)
   pointer.direct();
   pointer.display();
 
-  //draws and updates the player (see player.js)
+  //draws and updates the player (see playerc code, line 260)
   player.display();
   player.move();
   player.powerReset();
-  player.checkCollision(wall01);
 
-  //draws and updates all of the bullets in the bullets array (see projectiles.js)
+  //draws and updates all of the bullets in the bullets array (see projectiles code, line 400)
   for (let i = 0; i < bullets.length; i++) {
     bullets[i].display();
     bullets[i].move();
-    bullets[i].checkCollision(wall01);
   }
 
-  //spawns the powerup (see powerups.js)
+  //spawns the powerup (see powerups code, line 480)
   powerUpSpawnTimer = frameCount % powerUpDelay;
   spawnPowerup();
 
-  //displays the powerups and checks if the player touches any (see powerups.js)
+  //displays the powerups and checks if the player touches any (see powerups code, line 480)
   for (let i = 0; i < powerupsOnScreen.length; i++) {
     powerupsOnScreen[i].display();
     powerupsOnScreen[i].activateCheck();
@@ -68,6 +74,187 @@ function draw() {
 
   //sets up the global timer because frameCount doesn't carry over to other scripts.
   globalTimer = frameCount;
+}
+
+//ROOM AND WALL CODE
+
+function setupNewWallCode() {
+  let level1 = [];
+  let level2 = [];
+
+  levels.push(level1);
+  levels.push(level2);
+
+  cols = floor(25);
+  rows = floor(25);
+
+  for (var r = 0; r < rows; r++) {
+    for (var c = 0; c < cols; c++) {
+      var cell = new Cell(r, c);
+      grid.push(cell);
+    }
+  }
+
+  room01 = new Room(2, 2, 100, 100, true, false, false, false, false);
+  level1.push(room01);
+
+  room02 = new Room(1, 2, 100, 100, false, true, false, true, false);
+  level1.push(room02);
+
+  room03 = new Room(1, 3, 100, 100, false, true, true, false, false);
+  level1.push(room03);
+
+  room04 = new Room(2, 3, 100, 100, true, true, false, false, false);
+  level1.push(room04);
+
+  room05 = new Room(3, 3, 100, 100, true, false, false, false, true);
+  level1.push(room05);
+
+  room11 = new Room(0, 1, 100, 100, false, true, false, false, false);
+  level2.push(room11);
+
+  room12 = new Room(1, 1, 100, 100, true, false, false, true, false);
+  level2.push(room12);
+
+  room13 = new Room(1, 2, 100, 100, false, true, true, false, false);
+  level2.push(room13);
+
+  room14 = new Room(2, 2, 100, 100, true, false, false, true, false);
+  level2.push(room14);
+
+  room15 = new Room(2, 3, 100, 100, false, false, true, false, true);
+  level2.push(room15);
+}
+
+function processNewWallCode() {
+  let currentLevel = levels[0];
+
+  for (var i = 0; i < grid.length; i++) {
+    grid[i].show();
+  }
+
+  for (var j = 0; j < currentLevel.length; j++) {
+    currentLevel[j].display();
+    // Check if the player is in the current room
+    if (currentLevel[j].isOccupied(player)) {
+      currentRoom = currentLevel[j]; // Set the current room
+    }
+
+    if (currentRoom) {
+      player.checkCollision(currentRoom);
+      
+      // Check if the room has a finish and if the player is in it
+      if (currentRoom.finish) {
+        // Move to the next level if there is one
+        if (levels.length > 1) {
+          levels.shift(); // Remove the current level
+          // Reset the player's position to the starting position of the new room
+          player.x = levels[0][0].x + levels[0][0].w / 2; // Center the player in the new room
+          player.y = levels[0][0].y + levels[0][0].h / 2;
+        }
+      }
+    }
+  }
+}
+
+class Room {
+  constructor(row, col, w, h, left, right, top, bot, fin = false) {
+    this.x = row * s; // x position of the room
+    this.y = col * s; // y position of the room
+    this.w = w; // width of the room
+    this.h = h; // height of the room
+    this.walls = new Wall(this, left, right, top, bot); // Create walls for the room
+    this.finish = fin; // Finish flag
+  }
+
+  display() {
+    // Draw the room
+    if (this.finish) {
+      stroke("green");
+      fill("green");
+    } else {
+      stroke("white");
+      fill("white");
+    }
+
+    rect(this.x, this.y, this.w, this.h);
+    this.walls.display(); // Display the walls
+  }
+
+  isOccupied(player) {
+    return (
+      player.x > this.x &&
+      player.x < this.x + this.w &&
+      player.y > this.y &&
+      player.y < this.y + this.h
+    );
+  }
+}
+
+class Wall {
+  constructor(room, left, right, top, bot) {
+    this.room = room;
+    this.left = left;
+    this.right = right;
+    this.top = top;
+    this.bot = bot;
+  }
+
+  display() {
+    const { x, y, w, h } = this.room; // Use w and h instead of width and height
+    stroke("black"); // Wall color
+    strokeWeight(10); // Gives clear border for the wall
+
+    // uses lines for the walls that takes any rectanigale and makes sure that the walls are printed corrcetly
+
+    // Left wall
+    if (!this.left) {
+      // calls for a doorway to be made on the left wall of the room
+      line(x, y + h, x, y); //solid wall if door is not called
+    }
+
+    // Right wall
+    if (!this.right) {
+      // calls for a doorway to be made on the right wall of the room
+      line(x + w, y, x + w, y + h); //solid wall if door is not called
+    }
+
+    // Top wall
+    if (!this.top) {
+      // calls for a doorway to be made on the top wall of the room
+      line(x, y, x + w, y); //solid wall if door is not called
+    }
+
+    // Bottom wall
+    if (!this.bot) {
+      // calls for a doorway to be made on the bottom wall of the room
+      line(x + w, y + h, x, y + h); //solid wall if door is not called
+    }
+  }
+
+  // For the player class to define walls of the room. Line 78
+  getBounds() {
+    const { x, y, w, h } = this.room;
+    return {
+      left: x,
+      right: x + w,
+      top: y,
+      bottom: y + h,
+    };
+  }
+}
+
+function Cell(r, c) {
+  this.r = r;
+  this.c = c;
+
+  this.show = function () {
+    var x = r * s;
+    var y = c * s;
+    stroke(255);
+    noFill();
+    rect(x, y, s, s);
+  };
 }
 
 //PLAYER CODE
@@ -156,23 +343,37 @@ function playerCharacter(x_, y_) {
     }
   };
 
-  //collision detection for the player
-  this.checkCollision = function (wall) {
-    const bounds = wall.getBounds();
+  this.checkCollision = function(room) {
+  const bounds = room.walls.getBounds(); // Get the bounds of the room's walls
 
-    if (this.x - this.width / 1.4 < bounds.left) {
-      this.x = bounds.left + this.width / 1.4; // Push player to the right off the left wall
+  // Check collision with left wall
+  if (this.x - this.width < bounds.left) {
+    if (!room.walls.left) { // Check if there is a door
+      this.x = bounds.left + this.width; // Push player to the right off the left wall
     }
-    if (this.x + this.width / 1.4 > bounds.right) {
-      this.x = bounds.right - this.width / 1.4; // Push player to the left off the right wall
+  }
+
+  // Check collision with right wall
+  if (this.x + this.width > bounds.right) {
+    if (!room.walls.right) { // Check if there is a door
+      this.x = bounds.right - this.width; // Push player to the left off the right wall
     }
-    if (this.y - this.width / 1.4 < bounds.top) {
-      this.y = bounds.top + this.width / 1.4; // Push player down form the top wall
+  }
+
+  // Check collision with top wall
+  if (this.y - this.width < bounds.top) {
+    if (!room.walls.top) { // Check if there is a door
+      this.y = bounds.top + this.width; // Push player down from the top wall
     }
-    if (this.y + this.width / 1.4 > bounds.bottom) {
-      this.y = bounds.bottom - this.width / 1.4; // Push player up from the bottom wall
+  }
+
+  // Check collision with bottom wall
+  if (this.y + this.width > bounds.bottom) {
+    if (!room.walls.bot) { // Check if there is a door
+      this.y = bounds.bottom - this.width; // Push player up from the bottom wall
     }
-  };
+  }
+}
 }
 
 //pointer object
@@ -184,7 +385,7 @@ function Pointer() {
 
   //trigonometry magic which figures out the location of the pointer (if you want to figure out what's going on here and write a proper explanation then be my guest)
   this.direct = function () {
-    let angleCoef = atan2(mouseY - player.y, mouseX - player.x);
+    let angleCoef = atan2(mouseY - height / 2, mouseX - width / 2)
     this.x = player.x + this.distance * cos(angleCoef);
     this.y = player.y + this.distance * sin(angleCoef);
   };
@@ -196,51 +397,7 @@ function Pointer() {
   };
 }
 
-//POWERUP CODE
-
-//spawns a new powerup in a random spot on the canvas.
-function spawnPowerup() {
-  if (powerUpSpawnTimer === 0) {
-    powerupsOnScreen.pop();
-    let newPower = new powerUp(random(width), random(height), "speed");
-    powerupsOnScreen.push(newPower);
-  }
-}
-
-//the power up object.
-function powerUp(x_, y_, t_) {
-  this.x = x_; //x position
-  this.y = y_; //y position
-  this.type = t_; //type of powerup
-
-  this.radius = 10; //radius of the circle
-  this.activated = false; //whether or not the powerup has been activated
-
-  //displays the powerup (if the player hasn't already activated it)
-  this.display = function () {
-    if (this.activated === false) {
-      fill(0, 0, 255);
-      circle(this.x, this.y, this.radius);
-    }
-  };
-
-  //activates the powerup if the player gets within a certain distance (see player.js), and makes sure it can't be activated more than once.
-  this.activateCheck = function () {
-    if (dist(player.x, player.y, this.x, this.y) < this.radius * 2) {
-      if (this.activated === false) {
-        player.activate(this.type);
-        this.activated = true;
-      }
-    }
-  };
-}
-
-//removes the powerup from the screen.
-function removeThisPowerup() {
-  powerupsOnScreen.pop();
-}
-
-//BULLET CODE
+//PROJECTILES CODE
 
 //bullet object. Could maybe be reused for other projectiles if we feel like giving the enemies guns
 function projectile(x_, y_, o_) {
@@ -252,7 +409,7 @@ function projectile(x_, y_, o_) {
   this.order = o_;
 
   //more trigonometry magic! This time, it figures out how fast the bullets should be moving along the X and Y axis
-  let angleCoef = atan2(mouseY - player.y, mouseX - player.x);
+  let angleCoef = atan2(mouseY - height / 2, mouseX - width / 2);
   this.xVelocity = bulletSpeed * cos(angleCoef);
   this.yVelocity = bulletSpeed * sin(angleCoef);
 
@@ -269,25 +426,42 @@ function projectile(x_, y_, o_) {
   };
 
   //checks for a bullet's collision with a wall and calls the delete function on that specific bullet. this is mostly recycled from the player collision.
-  this.checkCollision = function (wall) {
-    const bounds = wall.getBounds();
-    if (this.x < bounds.left) {
-      removeBullet(this.order);
+  this.checkCollision = function (room) {
+    const bounds = room.walls.getBounds(); // Get the bounds of the room's walls
+
+  // Check collision with left wall
+  if (this.x < bounds.left) {
+    if (!room.walls.left) { // Check if there is a door
+      this.x = bounds.left + this.width; // Push player to the right off the left wall
     }
-    if (this.x > bounds.right) {
-      removeBullet(this.order);
+  }
+
+  // Check collision with right wall
+  if (this.x > bounds.right) {
+    if (!room.walls.right) { // Check if there is a door
+      this.x = bounds.right - this.width; // Push player to the left off the right wall
     }
-    if (this.y < bounds.top) {
-      removeBullet(this.order);
+  }
+
+  // Check collision with top wall
+  if (this.y < bounds.top) {
+    if (!room.walls.top) { // Check if there is a door
+      this.y = bounds.top + this.width; // Push player down from the top wall
     }
-    if (this.y > bounds.bottom) {
-      removeBullet(this.order);
+  }
+
+  // Check collision with bottom wall
+  if (this.y > bounds.bottom) {
+    if (!room.walls.bot) { // Check if there is a door
+      this.y = bounds.bottom - this.width; // Push player up from the bottom wall
     }
+  }
   };
 }
 
 //function which deletes the bullet by cycling through the list until it gets to the bullet specified by the order, then deletes it.
 function removeBullet(order) {
+  print(true)
   for (let i = 0; i < bullets.length; i++) {
     if (bullets[i].order === order) {
       bullets.splice(i, 1);
@@ -303,58 +477,46 @@ function mousePressed() {
   bulletOrder++;
 }
 
-//ROOM AND WALL CODE
+//POWERUP CODE
 
-class Room {
-  constructor(x, y, w, h) {
-    this.x = x; // x position of the room
-    this.y = y; // y position of the room
-    this.w = w; // width of the room
-    this.h = h; // height of the room
-  }
-
-  display() {
-    // Draw the room
-    stroke("white"); // Made the rooms starting wall color white. Allows to check if walls have been placed,
-    fill("white");
-    rectMode(CORNER);
-    rect(this.x, this.y, this.w, this.h); // Outer rectangle postion and dimension.
+//spawns a new powerup in a random spot on the canvas.
+function spawnPowerup(){
+  if(powerUpSpawnTimer === 0){
+    powerupsOnScreen.pop();
+    let newPower = new powerUp(random(width),random(height),"speed");
+    powerupsOnScreen.push(newPower);
   }
 }
 
-class Wall {
-  constructor(room) {
-    this.room = room; // grabs the room object that is put into it above.
-    this.wallWidth = 10;
+//the power up object.
+function powerUp(x_,y_,t_){
+  this.x = x_ //x position
+  this.y = y_ //y position
+  this.type = t_ //type of powerup
+  
+  this.radius = 10 //radius of the circle
+  this.activated = false //whether or not the powerup has been activated
+  
+  //displays the powerup (if the player hasn't already activated it)
+  this.display = function(){
+    if (this.activated === false){
+      fill(0, 0, 255)
+      circle(this.x, this.y, this.radius)
+    }
   }
-
-  display() {
-    const { x, y, w, h } = this.room; // Use w and h instead of width and height
-    rectMode(CORNER);
-    stroke("black"); // Wall color
-    strokeWeight(this.wallWidth); // Gives clear border for the wall
-
-    // uses lines for the walls that takes any rectanigale and makes sure that the walls are printed corrcetly
-
-    // Top wall
-    line(x, y, x + w, y);
-    // Right wall
-    line(x + w, y, x + w, y + h);
-    // Bottom wall
-    line(x + w, y + h, x, y + h);
-    // Left wall
-    line(x, y + h, x, y);
+  
+  //activates the powerup if the player gets within a certain distance (see player.js), and makes sure it can't be activated more than once.
+  this.activateCheck = function(){
+    if (dist(player.x, player.y, this.x, this.y) < this.radius*2){
+      if(this.activated === false){
+          player.activate(this.type);
+        this.activated = true;
+      }
+    }
   }
+}
 
-  // For the player class to define each wall that is made. Line 78
-  getBounds() {
-    const { x, y, w, h } = this.room;
-    return {
-      left: x,
-      right: x + w,
-      top: y,
-      bottom: y + h,
-      wallWidth: this.wallWidth,
-    };
-  }
+//removes the powerup from the screen.
+function removeThisPowerup(){
+  powerupsOnScreen.pop();
 }
