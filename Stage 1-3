@@ -1,154 +1,339 @@
-//stage 1 setup
+  //stage 1 setup
+    //starting room
   room01 = new Room(2, 2, 100, 100, true, false, false, false, false);
-  level1.push(room01)
+  level1.push(room01);
   
+  //hallway to the first room
   room02 = new Room(1, 2, 100, 100, false, true, false, true, false);
-  level1.push(room02)
+  level1.push(room02);
   
   room03 = new Room(1, 3, 100, 100, false, true, true, false, false);
-  level1.push(room03)
+  level1.push(room03);
   
+  
+  //first big room
   room04 = new Room(2, 3, 100, 100, true, true, false, true, false);
-  level1.push(room04)
+  level1.push(room04);
   
   room041 = new Room(3, 3, 100, 100, true, false, false, true, false);
-  level1.push(room041)
+  level1.push(room041);
   
   room042 = new Room(2, 4, 100, 100, false, true, true, true, false);
-  level1.push(room042)
+  level1.push(room042);
   
   room043 = new Room(3, 4, 100, 100, true, false, true, true, false);
-  level1.push(room043)
+  level1.push(room043);
   
   room044 = new Room(2, 5, 100, 100, false, true, true, false, false);
-  level1.push(room044)
+  level1.push(room044);
   
-  room045 = new Room(3, 5, 100, 100, true, true, true, false, false);
-  level1.push(room045)
-  
-  room05 = new Room(4, 5, 100, 100, true, false, false, false, true);
-  level1.push(room05)
+  room045 = new Room(3, 5, 100, 100, true, false, true, true, false);
+  level1.push(room045);
   
   
+  //second hallway
+  room05 = new Room(3, 6, 100, 100, false, true, true, false, false);
+  level1.push(room05);
+  
+  room06 = new Room(4, 6, 100, 100, true, true, false, false, false);
+  level1.push(room06);
   
   
+  //second big room
+  room07 = new Room(5, 6, 100, 100, true, true, true, false, false);
+  level1.push(room07);
   
-  //for rooms: row, col, w, h, left, right, top, bot, fin = false
+  room071 = new Room(5, 5, 100, 100, false, true, false, true, false);
+  level1.push(room071);
+  
+  room072 = new Room(6, 6, 100, 100, true, true, true, false, false);
+  level1.push(room072);
+  
+  room073 = new Room(6, 5, 100, 100, true, true, false, true, false);
+  level1.push(room073);
+  
+  room074 = new Room(7, 6, 100, 100, true, true, true, false, false);
+  level1.push(room074);
+  
+  room075 = new Room(7, 5, 100, 100, true, true, false, true, false);
+  level1.push(room075);
+  
+  room076 = new Room(8, 6, 100, 100, true, true, true, false, false);
+  level1.push(room076);
+  
+  room077 = new Room(8, 5, 100, 100, true, true, false, true, false);
+  level1.push(room077);
+  
+  room078 = new Room(9, 6, 100, 100, true, true, true, false, false);
+  level1.push(room078);
+  
+  room079 = new Room(9, 5, 100, 100, true, false, false, true, false);
+  level1.push(room079);
+  
+  
+  //third hallway
+  room08 = new Room(10, 6, 100, 100, true, false, false, true, false);
+  level1.push(room08);
+  
+  room09 = new Room(10, 7, 100, 100, true, false, true, true, false);
+  level1.push(room09);
+  
+  
+  //third big room
+  room011 = new Room(10, 8, 100, 100, true, true, false, true, false);
+  level1.push(room011);
+  
+  room012 = new Room(9, 8, 100, 100, false, true, false, true, false);
+  level1.push(room012);
+  
+  room013 = new Room(10, 9, 100, 100, true, false, true, true, false);
+  level1.push(room013);
+  
+  room014 = new Room(9, 9, 100, 100, false, true, true, false, false);
+  level1.push(room014);
+  
+  room015 = new Room(10, 10, 100, 100, true, false, true, true, false);
+  level1.push(room015);
+  
+  room016 = new Room(10, 10, 100, 100, true, false, false, true, false);
+  level1.push(room016);
+  
+
+  
   //stage 2 setup
-  room11 = new Room(2, 2, 100, 100, true, false, false, false, false);
-  level2.push(room11)
+    //starting room
+  room11 = new Room(2, 2, 100, 100, false, true, false, false, false);
+  level2.push(room11);
   
-  room12 = new Room(1, 2, 100, 100, false, true, false, true, false);
-  level2.push(room12)
+    //correct path
+  room12 = new Room(3, 2, 100, 100, true, true, false, true, false);
+  level2.push(room12);
   
-  room13 = new Room(1, 3, 100, 100, false, true, true, false, false);
-  level2.push(room13)
+  room13 = new Room(3, 3, 100, 100, false, false, true, true, false);
+  level2.push(room13);
   
-  room14 = new Room(2, 3, 100, 100, true, true, false, false, false);
-  level2.push(room14)
+  room14 = new Room(3, 4, 100, 100, false, true, true, false, false);
+  level2.push(room14);
   
-  room15 = new Room(3, 3, 100, 100, true, false, true, false, false);
-  level2.push(room15)
+  room15 = new Room(4, 4, 100, 100, true, false, false, true, false);
+  level2.push(room15);
   
-  room16 = new Room(3, 2, 100, 100, false, true, false, true, false);
-  level2.push(room16)
+  room16 = new Room(4, 5, 100, 100, true, true, true, false, false);
+  level2.push(room16);
   
-  room17 = new Room(4, 2, 100, 100, true, false, false, true, false);
-  level2.push(room17)
+  room17 = new Room(3, 5, 100, 100, false, true, false, true, false);
+  level2.push(room17);
   
-  room18 = new Room(4, 3, 100, 100, false, true, true, false, false);
-  level2.push(room18)
+  room18 = new Room(3, 6, 100, 100, false, true, true, false, false);
+  level2.push(room18);
   
-  room19 = new Room(5, 3, 100, 100, true, false, true, false, false);
-  level2.push(room19)
+  room19 = new Room(4, 6, 100, 100, true, true, false, false, false);
+  level2.push(room19);
   
-  room20 = new Room(5, 2, 100, 100, false, false, false, true, true);
-  level2.push(room20)
+  room120 = new Room(5, 6, 100, 100, true, true, false, false, false);
+  level2.push(room120);
+  
+  room121 = new Room(6, 6, 100, 100, true, false, true, false, false);
+  level2.push(room121);
+  
+  room122 = new Room(6, 5, 100, 100, false, true, false, true, false);
+  level2.push(room122);
+  
+  room123 = new Room(7, 5, 100, 100, true, false, true, true, false); 
+  level2.push(room123);
+  
+  room124 = new Room(7, 4, 100, 100, false, true, false, true, false);
+  level2.push(room124);
+  
+  room125 = new Room(8, 4, 100, 100, true, false, true, false, false);
+  level2.push(room125);
+  
+  room126 = new Room(8, 3, 100, 100, false, true, false, true, false);
+  level2.push(room126);
+  
+  room127 = new Room(9, 3, 100, 100, true, false, false, false, true);
+  level2.push(room127);
   
   
+  //dead end 1
+  room128 = new Room(4, 2, 100, 100, true, true, false, false, false);
+  level2.push(room128);
   
-  //for rooms: row, col, w, h, left, right, top, bot, fin = false
+  room129 = new Room(5, 2, 100, 100, true, false, false, true, false);
+  level2.push(room129);
+  
+  room130 = new Room(5, 3, 100, 100, true, false, true, false, false);
+  level2.push(room130);
+  
+  room131 = new Room(4, 3, 100, 100, false, true, false, false, false);
+  level2.push(room131);
+  
+  
+  //dead end 2
+  room132 = new Room(5, 5, 100, 100, true, false, true, false, false);
+  level2.push(room132);
+  
+  room133 = new Room(5, 4, 100, 100, false, true, false, true, false);
+  level2.push(room133);
+  
+  room134 = new Room(6, 4, 100, 100, true, false, false, false, false);
+  level2.push(room134);
+  
+  
+  //dead end 3  
+  room135 = new Room(7, 6, 100, 100, false, true, true, false, false);
+  level2.push(room135);
+  
+  room136 = new Room(8, 6, 100, 100, true, false, false, false, false);
+  level2.push(room136);
+  
+
   //stage 3 setup
-  room21 = new Room(5, 5, 100, 100, true, true, true, true, false);
-  level3.push(room21)
+  room21 = new Room(5, 5, 100, 100, true, true, false, false, false);
+  level3.push(room21);
   
-  //4 different path from the starting point, right path(room25) is the correct path, (room22,23,24 is not)
-  
-  //going up
-  room22 = new Room(5, 4, 100, 100, false, true, false, true, false);
-  level3.push(room22)
-  
-  room221 = new Room(6, 4, 100, 100, true, false, true, false, false);
-  level3.push(room221)
-  
-  room222 = new Room(6, 3, 100, 100, true, false, false, true, false);
-  level3.push(room222)
-  
-  room223 = new Room(5, 3, 100, 100, false, true, true, false, false);
-  level3.push(room223)
-  
-  room224 = new Room(5, 2, 100, 100, false, false, false, true, false);
-  level3.push(room224)
-  
-  
-  //going down
-  room23 = new Room(5, 6, 100, 100, true, false, true, false, false);
-  level3.push(room23)
-  
-  room231 = new Room(4, 6, 100, 100, false, true, false, true, false);
-  level3.push(room231)
-  
-  room232 = new Room(4, 7, 100, 100, false, true, true, false, false);
-  level3.push(room232)
-  
-  room233 = new Room(5, 7, 100, 100, true, true, false, false, false);
-  level3.push(room233)
-  
-  room234 = new Room(6, 7, 100, 100, true, false, false, true, false);
-  level3.push(room234);
-  
-  room235 = new Room(6, 8, 100, 100, false, false, true, false, false);
-  level3.push(room235);
+  //7 dead ends, one exit
 
-  
   //going left
-  room24 = new Room(4, 5, 100, 100, false, true, true, false, false);
-  level3.push(room24)
+    //correct path
+  room22 = new Room(4, 5, 100, 100, false, true, true, false, false);
+  level3.push(room22);
   
-  room241 = new Room(4, 4, 100, 100, true, false, false, true, false);
-  level3.push(room241)
+  room221 = new Room(4, 4, 100, 100, true, false, true, true, false);
+  level3.push(room221);
   
-  room242 = new Room(3, 4, 100, 100, false, true, false, true, false);
-  level3.push(room242)
+  room222 = new Room(3, 4, 100, 100, false, true, false, true, false);
+  level3.push(room222);
   
-  room243 = new Room(3, 5, 100, 100, true, false, true, false, false);
-  level3.push(room243)
+  room223 = new Room(3, 5, 100, 100, true, false, true, false, false);
+  level3.push(room223);
   
-  room244 = new Room(2, 5, 100, 100, false, true, false, false, false);
-  level3.push(room244)
+  room224 = new Room(2, 5, 100, 100, false, true, true, true, false);
+  level3.push(room224);
 
+  
+  room225 = new Room(2, 6, 100, 100, false, true, true, false, false);
+  level3.push(room225);
+  
+  room226 = new Room(3, 6, 100, 100, true, true, false, false, false);
+  level3.push(room226);
+  
+  room227 = new Room(4, 6, 100, 100, true, true, false, true, false);
+  level3.push(room227);
+  
+  room228 = new Room(4, 7, 100, 100, true, true, true, false, false);
+  level3.push(room228);
+  
+  room229 = new Room(5, 7, 100, 100, true, true, true, true, false);
+  level3.push(room229);
+  
+  room2211 = new Room(5, 8, 100, 100, false, false, true, true, false);
+  level3.push(room2211);
+  
+  room2212 = new Room(5, 9, 100, 100, false, true, true, false, false);
+  level3.push(room2212);
+  
+  room2213 = new Room(6, 9, 100, 100, true, false, false, false, true);
+  level3.push(room2213);
+  
+
+  
+    //Dead end 1
+  room23 = new Room(4, 3, 100, 100, false, true, false, true, false);
+  level3.push(room23);
+  
+  room231 = new Room(5, 3, 100, 100, true, true, true, false, false);
+  level3.push(room231);
+  
+  room232 = new Room(5, 2, 100, 100, true, false, false, true, false);
+  level3.push(room232);
+  
+  room233 = new Room(4, 2, 100, 100, false, true, false, false, false);
+  level3.push(room233);
+  
+    //dead end 2
+  room24 = new Room(2, 4, 100, 100, false, false, true, true, false);
+  level3.push(room24);
+  
+  room241 = new Room(2, 3, 100, 100, false, true, false, true, false);
+  level3.push(room241);
+  
+  room242 = new Room(3, 3, 100, 100, true, false, false, false, false);
+  level3.push(room242);
+  
+    //dead end 3
+  room25 = new Room(3, 7, 100, 100, true, true, false, false, false);
+  level3.push(room25);
+  
+  room251 = new Room(2, 7, 100, 100, false, true, false, true, false);
+  level3.push(room251);
+  
+  room252 = new Room(2, 8, 100, 100, false, false, true, false, false);
+  level3.push(room252);
+  
+    //dead end 4
+  room26 = new Room(5, 6, 100, 100, false, false, false, true, false);
+  level3.push(room26);
+  
+    //dead end 5
+  room27 = new Room(6, 3, 100, 100, true, false, false, true, false);
+  level3.push(room27);
+  
+  room271 = new Room(6, 4, 100, 100, true, false, true, false, false);
+  level3.push(room271);
+  
+  room272 = new Room(5, 4, 100, 100, false, true, false, false, false);
+  level3.push(room272);
+  
+    
+  
   
   //going right
-  room25 = new Room(6, 5, 100, 100, true, false, false, true, false);
-  level3.push(room25)
+    //dead end 6
+  room28 = new Room(6, 5, 100, 100, true, false, false, true, false);
+  level3.push(room28);
   
-  room251 = new Room(6, 6, 100, 100, false, true, true, false, false);
-  level3.push(room251)
+  room281 = new Room(6, 6, 100, 100, false, true, true, false, false);
+  level3.push(room281);
   
-  room252 = new Room(7, 6, 100, 100, true, false, true, false, false);
-  level3.push(room252)
+  room282 = new Room(7, 6, 100, 100, true, false, true, true, false);
+  level3.push(room282);
   
-  room253 = new Room(7, 5, 100, 100, false, false, true, true, false);
-  level3.push(room253)
+  room283 = new Room(7, 5, 100, 100, false, false, true, true, false);
+  level3.push(room283);
   
-  room254 = new Room(7, 4, 100, 100, false, true, false, true, false);
-  level3.push(room254)
+  room284 = new Room(7, 4, 100, 100, false, true, false, true, false);
+  level3.push(room284);
   
-  room255 = new Room(8, 4, 100, 100, true, false, false, true, false);
-  level3.push(room255)
+  room285 = new Room(8, 4, 100, 100, true, false, false, true, false);
+  level3.push(room285);
   
-  room256 = new Room(8, 5, 100, 100, false, true, true, false, false);
-  level3.push(room256)
+  room286 = new Room(8, 5, 100, 100, false, true, true, false, false);
+  level3.push(room286);
   
-  room257 = new Room(9, 5, 100, 100, true, false, false, false, true);
-  level3.push(room257)
+  room287 = new Room(9, 5, 100, 100, true, false, true, false, false);
+  level3.push(room287);
+  
+  room288 = new Room(9, 4, 100, 100, false, false, true, true, false);
+  level3.push(room288);
+  
+  room289 = new Room(9, 3, 100, 100, true, false, false, true, false);
+  level3.push(room289);
+  
+  room290 = new Room(8, 3, 100, 100, false, true, false, false, false);
+  level3.push(room290);
+  
+  
+    //dead end 7
+  room211 = new Room(7, 7, 100, 100, true, false, true, false, false);
+  level3.push(room211);
+  
+  room2111 = new Room(6, 7, 100, 100, false, true, false, true, false);
+  level3.push(room2111);
+  
+  room2112 = new Room(6, 8, 100, 100, false, true, true, false, false);
+  level3.push(room2112);
+  
+  room2113 = new Room(7, 8, 100, 100, true, false, false, false, false);
+  level3.push(room2113);
+  
