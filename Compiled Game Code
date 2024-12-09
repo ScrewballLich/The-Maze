@@ -13,17 +13,26 @@ let powerUpDuration = 300; //sets how long the power up lasts
 
 //variable which set the speed of the player and bullets
 let permMoveSpeed = 5;
-let permBulletSpeed = 7;
+let permBulletSpeed = 4;
 
 let bulletSpeed = permBulletSpeed;
 let moveSpeed = permMoveSpeed;
 
+//room, wall, and floor variables
 var cols, rows;//varblies for rows and columns of the grid
 var s = 100;//size of the squares that are made by the grid
 
 var grid = [];// array to hold the grid system 
 let levels = [];// array to hold the levels 
 let currentRoom; // Track the current room
+
+//enemy variables
+let enemyPlacements = [];
+let enemies = [];
+let enemiesSpawned = 1;
+let resetEnemies = false;
+
+let concurrentLevel = 0
 
 //creates the canvas and sets up the player and pointer.
 function setup() {
@@ -36,6 +45,8 @@ function setup() {
   
   pointer = new Pointer();
   room01 = new Room(50, 50, 300, 300);
+  
+  setupEnemies();
 }
 
 function draw() {
@@ -56,6 +67,7 @@ function draw() {
   player.display();
   player.move();
   player.powerReset();
+  player.checkBulletCollision();
 
   //draws and updates all of the bullets in the bullets array (see projectiles code, line 400)
   for (let i = 0; i < bullets.length; i++) {
@@ -63,6 +75,9 @@ function draw() {
     bullets[i].move();
   }
 
+  //processes the enemies (see enemy code)
+  processEnemies();
+  
   //spawns the powerup (see powerups code, line 480)
   powerUpSpawnTimer = frameCount % powerUpDelay;
   spawnPowerup();
@@ -76,6 +91,8 @@ function draw() {
   //sets up the global timer because frameCount doesn't carry over to other scripts.
   globalTimer = frameCount;
 }
+
+//ROOM AND WALL CODE
 
 //function to hold level arrays and make and push rooms to level arrays
 function setupLevelCode() {
@@ -102,7 +119,7 @@ function setupLevelCode() {
   }
 
     //stage 1 setup
-    //starting room
+   //starting room
   room01 = new Room(2, 2, 100, 100, true, false, false, false, false);
   level1.push(room01);
   
@@ -447,13 +464,14 @@ function levelTranslationCode() {
     }
 
     if (currentRoom) {
-      player.checkCollision(currentRoom);
+      player.checkWallCollision(currentRoom);
       
       // Check if the room has a finish and if the player is in it
       if (currentRoom.finish) {
         // Move to the next level if there is one
         if (levels.length > 1) {
           levels.shift(); // Remove the current level
+          concurrentLevel++; //count up the level counter
           // Reset the player's position to the starting position of the new room
           player.x = levels[0][0].x + levels[0][0].w / 2; // Center the player in the new room
           player.y = levels[0][0].y + levels[0][0].h / 2;
@@ -577,7 +595,6 @@ function Cell(r,c)
   }
 }
 
-
 //PLAYER CODE
 
 //player object
@@ -639,6 +656,8 @@ function playerCharacter(x_, y_) {
     } else if (keyIsDown(87)) {
       this.y = this.y - moveSpeed;
     }
+    
+    //print(this.x/s,this.y/s)
   };
 
   //resets the player (used for powerups)
@@ -664,7 +683,7 @@ function playerCharacter(x_, y_) {
     }
   };
 
-  this.checkCollision = function(room) {
+  this.checkWallCollision = function(room) {
   const bounds = room.walls.getBounds(); // Get the bounds of the room's walls
 
   // Check collision with left wall
@@ -695,6 +714,19 @@ function playerCharacter(x_, y_) {
     }
   }
 }
+  
+  //checks if the player has been hit with an enemy bullet. It's an exact copy of the enemy collision code (see enemies.js), except all it does here is print "ouch!"
+  this.checkBulletCollision = function () {
+    for (let i = 0; i < bullets.length; i++){
+      if (bullets[i].x > this.x - this.width && bullets[i].x < this.x + this.width){
+        if (bullets[i].y > this.y - this.width && bullets[i].y < this.y + this.width){
+          if (bullets[i].playerShot === false){
+            print("ouch!")
+          }
+        }
+      }
+    }
+  }
 }
 
 //pointer object
@@ -721,18 +753,34 @@ function Pointer() {
 //PROJECTILES CODE
 
 //bullet object. Could maybe be reused for other projectiles if we feel like giving the enemies guns
-function projectile(x_, y_, o_) {
+function projectile(x_, y_, o_, p_, ex_, ey_) {
   //sets the bullet's initial x and y positions, which should be wherever the pointer is at.
   this.x = x_;
   this.y = y_;
 
   //this is the order that the bullet was spawned in. This is useful for finding specific bullets.
   this.order = o_;
+  
+  //boolean which says if this was shot by a player or not
+  this.playerShot = p_;
+  
+  //shows the order of whichever enemy shot this bullet (if applicable)
+  if(ex_ !== undefined && ey_ !== undefined){
+      this.enemyX = ex_
+      this.enemyY = ey_
+  }
 
   //more trigonometry magic! This time, it figures out how fast the bullets should be moving along the X and Y axis
-  let angleCoef = atan2(mouseY - height / 2, mouseX - width / 2);
+  if (this.playerShot === true){
+    let angleCoef = atan2(mouseY - height / 2, mouseX - width / 2);
   this.xVelocity = bulletSpeed * cos(angleCoef);
   this.yVelocity = bulletSpeed * sin(angleCoef);
+  } else {
+    
+    let angleCoef = atan2(player.y - this.enemyY, player.x - this.enemyX);
+  this.xVelocity = bulletSpeed * cos(angleCoef);
+  this.yVelocity = bulletSpeed * sin(angleCoef);
+  }
 
   //displays the bullets
   this.display = function () {
@@ -741,7 +789,7 @@ function projectile(x_, y_, o_) {
   };
 
   //moves the bullets
-  this.move = function () {
+    this.move = function () {
     this.x = this.x + this.xVelocity;
     this.y = this.y + this.yVelocity;
 // Check if the bullet is still within the bounds of the room
@@ -764,7 +812,6 @@ function projectile(x_, y_, o_) {
 
 //function which deletes the bullet by cycling through the list until it gets to the bullet specified by the order, then deletes it.
 function removeBullet(order) {
-  print(true)
   for (let i = 0; i < bullets.length; i++) {
     if (bullets[i].order === order) {
       bullets.splice(i, 1);
@@ -775,7 +822,7 @@ function removeBullet(order) {
 
 //makes a new bullet whenever the mouse is pressed, then adds it to the array of bullets.
 function mousePressed() {
-  let bullet = new projectile(pointer.x, pointer.y, bulletOrder);
+  let bullet = new projectile(pointer.x, pointer.y, bulletOrder, true);
   bullets.push(bullet);
   bulletOrder++;
 }
@@ -824,3 +871,189 @@ function removeThisPowerup(){
   powerupsOnScreen.pop();
 }
 
+//ENEMIES CODE
+
+//sets up the enemies. It's pretty similar to how rooms are set up, with one array for every level that contains all the information for each enemy.
+function setupEnemies() {
+  let enemiesL1 = [];
+  let enemiesL2 = [];
+  let enemiesL3 = [];
+
+  
+  //each block represents an enemy. the arguments are structured as follows:
+  //enemy type (SideToSide or UpAndDown), enemiesSpawned, x position on the grid, y position on the grid, movement speed, how many tiles they travel across, whether or not they can shoot (true/false), and shooting speed (higher number = slower speed).
+  
+  //Level 1
+  enemy2 = new Enemy("UpAndDown", enemiesSpawned, 3, 3, 2, 2, true, 40);
+  enemiesL1.push(enemy2);
+  enemiesSpawned++;
+  
+  enemy1 = new Enemy("SideToSide", enemiesSpawned, 5, 5, 2, 2, true, 10);
+  enemiesL1.push(enemy1);
+  enemiesSpawned++;
+  
+  enemy3 = new Enemy("SideToSide", enemiesSpawned, 9, 9, 2, 1, true, 50);
+  enemiesL1.push(enemy3);
+  enemiesSpawned++;
+  
+  //Level 2
+  enemy4 = new Enemy("UpAndDown", enemiesSpawned, 5, 4, 2, 1, true, 40);
+  enemiesL2.push(enemy4);
+  enemiesSpawned++;
+
+  //add all of this to the master array
+  enemyPlacements.push(enemiesL1);
+  enemyPlacements.push(enemiesL2);
+  enemyPlacements.push(enemiesL3);
+}
+
+//processes the enemies every frame
+function processEnemies() {
+  //updates every enemy in the level.
+  if (enemyPlacements[concurrentLevel] !== undefined) {
+    for (let i = 0; i < enemyPlacements[concurrentLevel].length; i++) {
+      enemyPlacements[concurrentLevel][i].display();
+      enemyPlacements[concurrentLevel][i].move();
+      enemyPlacements[concurrentLevel][i].pointerUpdate();
+      enemyPlacements[concurrentLevel][i].shoot();
+      enemyPlacements[concurrentLevel][i].checkCollision();
+    }
+  }
+
+  //changes the level once the previous level is completed.
+  if (resetEnemies === true) {
+    concurrentLevel++;
+  }
+}
+
+//the enemy object
+function Enemy(t_, o_, x_, y_, s_, r_, sh_, sd_) {
+  this.type = t_; //type of enemy
+  this.order = o_; //enemy order in the array
+  this.homeX = x_ * s + s / 2; //initial X position
+  this.homeY = y_ * s + s / 2; //initial Y position
+  this.speed = s_; //movement speed
+  this.range = r_; //range of movement in tiles
+  this.canShoot = sh_; //whether or not this enemy can shoot bullets
+  this.shootDelay = sd_; //how fast this enemy can shoot
+
+  this.x = this.homeX; //enemy x position
+  this.y = this.homeY; //enemy y position
+
+  //controls the enemy's pointer. It function's the same as the player's pointer, except it's invisible.
+  this.pointerX = 0; //
+  this.pointerY = 0;
+
+  //lowest width of the enemy
+  this.width = 20;
+
+  //initializes variables depending on which way the enemy is moving
+  if (this.type === "SideToSide") {
+    this.movingRight = true;
+  } else if (this.type === "UpAndDown") {
+    this.movingDown = false;
+  }
+
+  //displays the enemy
+  this.display = function () {
+    rectMode(CENTER);
+    strokeWeight(1);
+    //changes its color depending on its type
+    if (this.type === "SideToSide") {
+      fill(255, 0, 0);
+      rect(this.x, this.y, this.width * 1.5, this.width);
+    } else if (this.type === "UpAndDown") {
+      fill(0, 0, 255);
+      rect(this.x, this.y, this.width, this.width * 1.5);
+    }
+  };
+
+  //moves the enemy
+  this.move = function () {
+    //side to side movement. Once it reaches the edge of its range, it turns around
+    if (this.type === "SideToSide") {
+      //right
+      if (this.movingRight === true) {
+        if (this.x > this.homeX + s * this.range) {
+          this.movingRight = false;
+        } else {
+          this.x += this.speed;
+        }
+        //left
+      } else {
+        if (this.x < this.homeX) {
+          this.movingRight = true;
+        } else {
+          this.x -= this.speed;
+        }
+      }
+      //up and down movement
+    } else if (this.type === "UpAndDown") {
+      //down
+      if (this.movingDown === true) {
+        if (this.y > this.homeY + s * this.range) {
+          this.movingDown = false;
+        } else {
+          this.y += this.speed;
+        }
+        //up
+      } else {
+        if (this.y < this.homeY) {
+          this.movingDown = true;
+        } else {
+          this.y -= this.speed;
+        }
+      }
+    }
+  };
+
+  //controls the enemy's pointer, which is invisible but helps with figuring out the direction of the bullets. It's also the same code as seen in the player code.
+  this.pointerUpdate = function () {
+    this.distance = 30;
+    this.pointerAngleCoef = atan2(player.y - this.y, player.x - this.x);
+    this.pointerX = this.x + this.distance * cos(this.pointerAngleCoef);
+    this.pointerY = this.y + this.distance * sin(this.pointerAngleCoef);
+  };
+
+  //shoots bullets
+  this.shoot = function () {
+    if (this.canShoot === true) { 
+      //shoots a bullet after a set amount of time depending on the delay
+      if (globalTimer % this.shootDelay === 0) { 
+        let bullet = new projectile(
+          this.pointerX,
+          this.pointerY,
+          bulletOrder,
+          false,
+          this.x,
+          this.y
+        );
+        bullets.push(bullet);
+        bulletOrder++;
+      }
+    }
+  };
+  
+  //checks if it has been shot by one of the player's bullets. It does this by running through the array of bullets and seeing if any of them have the same x and y position (roughly) as this enemy, then checks if it's been shot by the player. If all of this is true, the enemy gets deleted
+  this.checkCollision = function () {
+    for (let i = 0; i < bullets.length; i++){
+      if (bullets[i].x > this.x - this.width && bullets[i].x < this.x + this.width){
+        if (bullets[i].y > this.y - this.width && bullets[i].y < this.y + this.width){
+          if (bullets[i].playerShot === true){
+            killEnemy(this.order)
+          }
+        }
+      }
+    }
+  }
+}
+
+//kills the enemy. It's essentially the same code as the bullet code.
+function killEnemy(order){
+  for (let i = 0; i < enemyPlacements[concurrentLevel].length; i++) {
+    if (enemyPlacements[concurrentLevel][i].order === order) {
+      enemyPlacements[concurrentLevel].splice(i, 1);
+      i = enemyPlacements[concurrentLevel].length;
+    }
+  }
+}
