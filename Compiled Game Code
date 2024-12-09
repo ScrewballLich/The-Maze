@@ -18,6 +18,8 @@ let permBulletSpeed = 4;
 let bulletSpeed = permBulletSpeed;
 let moveSpeed = permMoveSpeed;
 
+let gameWon = false; // Variable to track if the game is won
+
 //room, wall, and floor variables
 var cols, rows;//varblies for rows and columns of the grid
 var s = 100;//size of the squares that are made by the grid
@@ -471,6 +473,22 @@ function levelTranslationCode() {
     // Check if the player is in the current room
     if (currentLevel[j].isOccupied(player)) {
       currentRoom = currentLevel[j]; // Set the current room
+      
+       // Check if the room has a finish and if the player is in it
+    if (currentRoom.endGame) {
+      gameWon = true; // Set gameWon to true
+    }
+      
+     // Display "You Win" message if the game is won
+  if (gameWon) {
+    fill('gold');
+    textSize(100);
+    textAlign(CENTER, CENTER);
+    text("You Win!", width / 2, height / 2);
+    
+    // Call resetGame after a short delay
+    setTimeout(resetGame, 2000); // Reset the game after 2 seconds
+  }
     }
 
     if (currentRoom) {
@@ -494,14 +512,14 @@ function levelTranslationCode() {
 
 // this Room class makes the room which then can be place at any cell on the grid. also need to define if there is a open on an of the sides of the room with ture and false. also need to stat if the room is the finsh room
 class Room {
-  constructor(row, col, w, h, left, right, top, bot, fin = false, game = false) {
+  constructor(row, col, w, h, left, right, top, bot, fin = false, endGame = false) {
     this.x = row * s; // x position of the room
     this.y = col * s; // y position of the room
     this.w = w; // width of the room
     this.h = h; // height of the room
     this.walls = new Wall(this, left, right, top, bot); // Create walls for the room
-    this.finish = fin;  // Finish flag  
-    this.game = game;   //Game clear setting
+    this.finish = fin;  // this states the room at the end of the level so the player can move to next level
+    this.endGame = endGame;   //Game clear setting
   }
 
   display() {
@@ -1067,4 +1085,15 @@ function killEnemy(order){
       i = enemyPlacements[concurrentLevel].length;
     }
   }
+}
+
+function resetGame() {
+  // Reset game state variables
+  gameWon = false; // Reset the game won flag
+  grid = []; // Clear the grid array
+  levels = []; // Clear the levels array
+  currentRoom = null; // Reset the current room
+
+  // Call setup to reinitialize the game
+  setup();
 }
