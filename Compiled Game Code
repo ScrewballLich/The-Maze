@@ -637,39 +637,21 @@ function projectile(x_, y_, o_) {
   this.move = function () {
     this.x = this.x + this.xVelocity;
     this.y = this.y + this.yVelocity;
-  };
+// Check if the bullet is still within the bounds of the room
+    let currentLevel = levels[0]; // Get the current level
+    let isInsideRoom = false;
 
-  //checks for a bullet's collision with a wall and calls the delete function on that specific bullet. this is mostly recycled from the player collision.
-  this.checkCollision = function (room) {
-    const bounds = room.walls.getBounds(); // Get the bounds of the room's walls
-
-  // Check collision with left wall
-  if (this.x < bounds.left) {
-    if (!room.walls.left) { // Check if there is a door
-      this.x = bounds.left + this.width; // Push player to the right off the left wall
+    for (let room of currentLevel) {
+        if (this.x > room.x && this.x < room.x + room.w && this.y > room.y && this.y < room.y + room.h) {
+            isInsideRoom = true; // Bullet is inside the room
+            break;
+        }
     }
-  }
 
-  // Check collision with right wall
-  if (this.x > bounds.right) {
-    if (!room.walls.right) { // Check if there is a door
-      this.x = bounds.right - this.width; // Push player to the left off the right wall
+    // If the bullet is outside of all rooms, remove it
+    if (!isInsideRoom) {
+        removeBullet(this.order);
     }
-  }
-
-  // Check collision with top wall
-  if (this.y < bounds.top) {
-    if (!room.walls.top) { // Check if there is a door
-      this.y = bounds.top + this.width; // Push player down from the top wall
-    }
-  }
-
-  // Check collision with bottom wall
-  if (this.y > bounds.bottom) {
-    if (!room.walls.bot) { // Check if there is a door
-      this.y = bounds.bottom - this.width; // Push player up from the bottom wall
-    }
-  }
   };
 }
 
